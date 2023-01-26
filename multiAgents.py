@@ -74,7 +74,32 @@ class ReflexAgent(Agent):
         newGhostStates = successorGameState.getGhostStates()
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
 
-        "*** YOUR CODE HERE ***"
+        food = newFood.asList()
+        foodDistances = []
+        ghostDistances = []
+        count = 0
+
+        for item in food:
+            foodDistances.append(manhattanDistance(newPos,item))
+
+        for i in foodDistances:
+            if i <= 4:
+                count += 1
+            elif i > 4 and i <= 15:
+                count += 0.2
+            else:
+                count += 0.15
+
+        for ghost in successorGameState.getGhostPositions():
+            ghostDistances.append(manhattanDistance(ghost,newPos))
+
+        for ghost in successorGameState.getGhostPositions():
+            if ghost == newPos:
+                count = 2 - count
+
+            elif manhattanDistance(ghost,newPos) <= 3.5:
+                count = 1 - count
+
         return successorGameState.getScore()
 
 def scoreEvaluationFunction(currentGameState: GameState):
@@ -135,8 +160,51 @@ class MinimaxAgent(MultiAgentSearchAgent):
         gameState.isLose():
         Returns whether or not the game state is a losing state
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        """
+            miniMax: receives state, agent(0,1,2...) and current depth
+            miniMax: returns a list: [cost,action]
+            Example with depth: 3
+            That means pacman played 3 times and all ghosts played 3 times
+        """
+
+        def miniMax(gameState,agent,depth):
+            result = []
+
+            if not gameState.getLegalActions(agent):
+                return self.evaluationFunction(gameState),0
+
+            if depth == self.depth:
+                return self.evaluationFunction(gameState),0
+
+            if agent == gameState.getNumAgents() - 1:
+                depth += 1
+
+            if agent == gameState.getNumAgents() - 1:
+                nextAgent = self.index
+
+            else:
+                nextAgent = agent + 1
+
+            for action in gameState.getLegalActions(agent):
+
+                if not result:
+                    nextValue = miniMax(gameState.generateSuccessor(agent,action),nextAgent,depth)
+
+                    result.append(nextValue[0])
+                    result.append(action)
+                else:
+                    previousValue = result[0]
+                    nextValue = miniMax(gameState.generateSuccessor(agent,action),nextAgent,depth)
+
+                    if agent == self.index:
+                        if nextValue[0] > previousValue:
+                            result[0] = nextValue[0]
+                            result[1] = action
+                    else:
+                        if nextValue[0] < previousValue:
+                            result[0] = nextValue[0]
+                            result[1] = action
+            return result
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
