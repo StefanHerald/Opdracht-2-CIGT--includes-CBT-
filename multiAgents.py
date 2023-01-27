@@ -322,7 +322,66 @@ def betterEvaluationFunction(currentGameState: GameState):
     DESCRIPTION: <write something here so we know what you did>
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    food = currentGameState.getFood().asList()
+    ghosts = currentGameState.getGhostStates()
+    pacPos = currentGameState.getPacmanPosition()
+    chasingGhosts = [] 
+    blueGhosts = [] 
+    totalNumCapsules = len(currentGameState.getCapsules())
+    totalNumFood = len(food) 
+    score = 0 
 
+    for ghost in ghosts:
+        if ghost.scaredTimer:
+            blueGhosts.append(ghost)
+        else:
+            chasingGhosts.append(ghost)
+    #begin with the current score. double it, as it indicates the general value as decided by the game itself
+    score = 2 * currentGameState.getScore()
+
+    #subtract the amount of food left and the amount of capsules left
+    score -= 5 * totalNumFood + 10 * totalNumCapsules
+
+    #depending on how close point getting objectives are and the ghost, alter the score
+    foodDist = []
+    chasingGhostsDist = []
+    blueGhostsDist = []
+
+
+    for item in food:
+        foodDist.append(manhattanDistance(pacPos,item))
+
+    for item in chasingGhosts:
+        chasingGhostsDist.append(manhattanDistance(pacPos, item.getPosition()))
+
+    for item in blueGhosts:
+        blueGhostsDist.append(manhattanDistance(pacPos,item.getPosition()))
+
+    #we want food to also be quite far, as it gives the least amount of points
+    for item in foodDist:
+        if item < 4:
+            score -= item
+        if item < 8:
+            score -= 0.5 * item
+        else:
+            score -= 0.2 * item
+
+    #we want blue ghosts as close as possible
+    for item in blueGhostsDist:
+        if item < 3:
+            score -= 20 * item
+        else:
+            score -= 10 * item
+
+    #we want chasing ghosts to  be as far as possible
+    for item in chasingGhostsDist:
+        if item < 4:
+            score += 3 * item
+        elif item < 8:
+            score += 2 * item
+        else:
+            score += 0.5 * item
+    
+    return score
 # Abbreviation
 better = betterEvaluationFunction
