@@ -359,9 +359,9 @@ def betterEvaluationFunction(currentGameState: GameState):
 
     #we want food to also be quite far, as it gives the least amount of points
     for item in foodDist:
-        if item < 4:
+        if item < 3:
             score -= item
-        if item < 8:
+        if item < 7:
             score -= 0.5 * item
         else:
             score -= 0.2 * item
@@ -375,9 +375,9 @@ def betterEvaluationFunction(currentGameState: GameState):
 
     #we want chasing ghosts to  be as far as possible
     for item in chasingGhostsDist:
-        if item < 4:
+        if item < 3:
             score += 3 * item
-        elif item < 8:
+        elif item < 7:
             score += 2 * item
         else:
             score += 0.5 * item
