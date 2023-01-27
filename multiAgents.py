@@ -169,7 +169,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
 
         def miniMax(gameState,agent,depth):
             result = []
-
+            previousValue = 0
             if (not gameState.getLegalActions(agent)) or (depth == self.depth):
                 return self.evaluationFunction(gameState),0
 
@@ -272,7 +272,7 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         All ghosts should be modeled as choosing uniformly at random from their
         legal moves.
         """
-        def ExpecAgent(gameState,agent,depth,a,b):
+        def ExpecAgent(gameState,agent,depth):
             result = []
 
             if not gameState.getLegalActions(agent) or depth == self.depth:
