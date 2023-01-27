@@ -191,7 +191,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
                     previousValue = result[0]
                     nextValue = miniMax(gameState.generateSuccessor(agent,action),nextAgent,depth)
 
-                if (nextValue[0] > previousValue and agent == self.index) or (nextValue[0] < previousValue):
+                if (nextValue[0] > previousValue and agent == self.index) or (nextValue[0] < previousValue and agent != self.index):
                     result[0] = nextValue[0]
                     result[1] = action
 
