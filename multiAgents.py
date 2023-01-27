@@ -170,16 +170,11 @@ class MinimaxAgent(MultiAgentSearchAgent):
         def miniMax(gameState,agent,depth):
             result = []
 
-            if not gameState.getLegalActions(agent):
-                return self.evaluationFunction(gameState),0
-
-            if depth == self.depth:
+            if (not gameState.getLegalActions(agent)) or (depth == self.depth):
                 return self.evaluationFunction(gameState),0
 
             if agent == gameState.getNumAgents() - 1:
                 depth += 1
-
-            if agent == gameState.getNumAgents() - 1:
                 nextAgent = self.index
 
             else:
@@ -196,15 +191,13 @@ class MinimaxAgent(MultiAgentSearchAgent):
                     previousValue = result[0]
                     nextValue = miniMax(gameState.generateSuccessor(agent,action),nextAgent,depth)
 
-                    if agent == self.index:
-                        if nextValue[0] > previousValue:
-                            result[0] = nextValue[0]
-                            result[1] = action
-                    else:
-                        if nextValue[0] < previousValue:
-                            result[0] = nextValue[0]
-                            result[1] = action
+                if (nextValue[0] > previousValue and agent == self.index) or (nextValue[0] < previousValue):
+                    result[0] = nextValue[0]
+                    result[1] = action
+
             return result
+
+        return miniMax(gameState,self.index,0)[1]
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
@@ -215,8 +208,57 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         """
         Returns the minimax action using self.depth and self.evaluationFunction
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        def AB(gameState,agent,depth,a,b):
+            result = []
+
+            if not gameState.getLegalActions(agent) or depth == self.depth:
+                return self.evaluationFunction(gameState),0
+
+            if agent == gameState.getNumAgents() - 1:
+                depth += 1
+
+            if agent == gameState.getNumAgents() - 1:
+                nextAgent = self.index
+
+            else:
+                nextAgent = agent + 1
+
+            for action in gameState.getLegalActions(agent):
+                if not result:
+                    nextValue = AB(gameState.generateSuccessor(agent,action),nextAgent,depth,a,b)
+
+                    result.append(nextValue[0])
+                    result.append(action)
+
+                    if agent == self.index:
+                        a = max(result[0],a)
+                    else:
+                        b = min(result[0],b)
+                else:
+                    if result[0] > b and agent == self.index:
+                        return result
+
+                    if result[0] < a and agent != self.index:
+                        return result
+
+                    previousValue = result[0] 
+                    nextValue = AB(gameState.generateSuccessor(agent,action),nextAgent,depth,a,b)
+
+                    if agent == self.index:
+                        if nextValue[0] > previousValue:
+                            result[0] = nextValue[0]
+                            result[1] = action
+                            a = max(result[0],a)
+
+                    else:
+                        if nextValue[0] < previousValue:
+                            result[0] = nextValue[0]
+                            result[1] = action
+                            # b may change #
+                            b = min(result[0],b)
+            return result
+
+        return AB(gameState,self.index,0,-float("inf"),float("inf"))[1]
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
     """
@@ -230,8 +272,47 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         All ghosts should be modeled as choosing uniformly at random from their
         legal moves.
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        def ExpecAgent(gameState,agent,depth,a,b):
+            result = []
+
+            if not gameState.getLegalActions(agent) or depth == self.depth:
+                return self.evaluationFunction(gameState),0
+
+            if agent == gameState.getNumAgents() - 1:
+                depth += 1
+
+            if agent == gameState.getNumAgents() - 1:
+                nextAgent = self.index
+
+            else:
+                nextAgent = agent + 1
+
+            for action in gameState.getLegalActions(agent):
+                if not result:
+                    nextValue = ExpecAgent(gameState.generateSuccessor(agent,action),nextAgent,depth)
+                    if(agent != self.index):
+                        result.append((1.0 / len(gameState.getLegalActions(agent))) * nextValue[0])
+                        result.append(action)
+                    else:
+                        result.append(nextValue[0])
+                        result.append(action)
+                else:
+
+                    previousValue = result[0] 
+                    nextValue = ExpecAgent(gameState.generateSuccessor(agent,action),nextAgent,depth)
+
+                    if agent == self.index:
+                        if nextValue[0] > previousValue:
+                            result[0] = nextValue[0]
+                            result[1] = action
+
+                    else:
+                        result[0] = result[0] + (1.0 / len(gameState.getLegalActions(agent))) * nextValue[0]
+                        result[1] = action
+            return result
+
+        return ExpecAgent(gameState,self.index,0)[1]                
+
 
 def betterEvaluationFunction(currentGameState: GameState):
     """
